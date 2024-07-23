@@ -7,9 +7,11 @@ let r = new Audio("./sounds/red.mp3");
 let y = new Audio("./sounds/yellow.mp3");
 let w = new Audio("./sounds/wrong.mp3");
 let score = 0;
-let mario = new Audio("./sounds/Ground.mp3");
-mario.loop=true
-let lost = new Audio("./sounds/lost.mp3")
+let mario = new Audio("./sounds/round.mp3");
+mario.loop = true;
+let lost = new Audio("./sounds/lost.mp3");
+
+const ws = new WebSocket('ws://localhost:8080');
 
 function playSound(color) {
   switch (color) {
@@ -40,25 +42,25 @@ function rgenPress() {
       $(".green").addClass("pressed");
       setTimeout(function () {
         $(".green").removeClass("pressed");
-      }, 200);
+      }, 400);
       break;
     case 1:
       $(".red").addClass("pressed");
       setTimeout(function () {
         $(".red").removeClass("pressed");
-      }, 200);
+      }, 400);
       break;
     case 2:
       $(".yellow").addClass("pressed");
       setTimeout(function () {
         $(".yellow").removeClass("pressed");
-      }, 200);
+      }, 400);
       break;
     case 3:
       $(".blue").addClass("pressed");
       setTimeout(function () {
         $(".blue").removeClass("pressed");
-      }, 200);
+      }, 400);
       break;
     default:
       break;
@@ -66,6 +68,7 @@ function rgenPress() {
 }
 
 function checker() {
+  mario.play();
   let i = 0;
   $(".container").click(function (event) {
     if (!play) return;
@@ -77,28 +80,28 @@ function checker() {
         $(".green").addClass("pressed");
         setTimeout(function () {
           $(".green").removeClass("pressed");
-        }, 200);
+        }, 50);
         break;
       case "red":
         clickedColor = 1;
         $(".red").addClass("pressed");
         setTimeout(function () {
           $(".red").removeClass("pressed");
-        }, 200);
+        }, 50);
         break;
       case "yellow":
         clickedColor = 2;
         $(".yellow").addClass("pressed");
         setTimeout(function () {
           $(".yellow").removeClass("pressed");
-        }, 200);
+        }, 50);
         break;
       case "blue":
         clickedColor = 3;
         $(".blue").addClass("pressed");
         setTimeout(function () {
           $(".blue").removeClass("pressed");
-        }, 200);
+        }, 50);
         break;
       default:
         return;
@@ -109,7 +112,6 @@ function checker() {
     if (!gameStarted) {
       gameStarted = true;
       arr = [clickedColor];
-      console.log("here");
       setTimeout(rgenPress, 500);
       return;
     }
@@ -126,8 +128,8 @@ function checker() {
     }
 
     i++;
-    score+=1;
-    $("h3").text("POINTS "+score)
+    score += 1;
+    $("h3").text("POINTS " + score);
     if (i === arr.length) {
       setTimeout(rgenPress, 500);
       i = 0;
@@ -135,6 +137,7 @@ function checker() {
   });
 }
 $(document).ready(function () {
-  mario.play();
+  // mario.play();
   checker();
+  ws.send(JSON.stringify({ type: 'start-game' }));
 });
