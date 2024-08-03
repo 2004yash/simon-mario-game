@@ -11,7 +11,7 @@ let mario = new Audio("./sounds/round.mp3");
 mario.loop = true;
 let lost = new Audio("./sounds/lost.mp3");
 
-const ws = new WebSocket('ws://localhost:8080');
+const ws = new WebSocket("ws://localhost:8080");
 
 function playSound(color) {
   switch (color) {
@@ -33,7 +33,45 @@ function playSound(color) {
 }
 
 function rgenPress() {
-  let colors = Math.floor(Math.random() * 4);
+  //   let colors = Math.floor(Math.random() * 4);
+  $(".container").click(function (event) {
+    if (!play) return;
+
+    let clickedColor;
+    switch (event.target.id) {
+      case "green":
+        clickedColor = 0;
+        $(".green").addClass("pressed");
+        setTimeout(function () {
+          $(".green").removeClass("pressed");
+        }, 50);
+        break;
+      case "red":
+        clickedColor = 1;
+        $(".red").addClass("pressed");
+        setTimeout(function () {
+          $(".red").removeClass("pressed");
+        }, 50);
+        break;
+      case "yellow":
+        clickedColor = 2;
+        $(".yellow").addClass("pressed");
+        setTimeout(function () {
+          $(".yellow").removeClass("pressed");
+        }, 50);
+        break;
+      case "blue":
+        clickedColor = 3;
+        $(".blue").addClass("pressed");
+        setTimeout(function () {
+          $(".blue").removeClass("pressed");
+        }, 50);
+        break;
+      default:
+        return;
+    }
+  });
+  let colors = clickedColor;
   console.log(colors);
   arr.push(colors);
   playSound(colors);
@@ -112,11 +150,11 @@ function checker() {
     if (!gameStarted) {
       gameStarted = true;
       arr = [clickedColor];
-      setTimeout(rgenPress, 500);
+    //   setTimeout(rgenPress, 500);
       return;
     }
 
-    if (clickedColor !== arr[i]) {
+    if (clickedColor !== arr[i] && i!=arr.length) {
       $("body").addClass("game-over");
       $("h1").text("GAME OVER");
       console.log("gameover");
@@ -130,8 +168,9 @@ function checker() {
     i++;
     score += 1;
     $("h3").text("POINTS " + score);
-    if (i === arr.length) {
-      setTimeout(rgenPress, 500);
+    if (i === arr.length+1) {
+    //   setTimeout(rgenPress, 500);
+      arr.push(clickedColor);
       i = 0;
     }
   });

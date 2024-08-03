@@ -1,29 +1,93 @@
+const express = require('express');
+const http = require('http');
 const WebSocket = require('ws');
+const path = require('path');
 
-const server = new WebSocket.Server({ port: 8080 });
+const app = express();
+const server = http.createServer(app);
+const wss = new WebSocket.Server({ server });
 
-let clients = [];
+let rooms = {};
 
-server.on('connection', (ws) => {
-  // Add new client to the clients array
-  clients.push(ws);
-  console.log('New client connected. Total clients:', clients.length);
+wss.on('connection', (ws) => {
+    console.log('New client connected');
+    
+    ws.on('message', (message) => {
+        const data = JSON.parse(message);
 
-  // Broadcast message to all clients
-  ws.on('message', (message) => {
-    console.log(`Received: ${message}`);
-    clients.forEach((client) => {
-      if (client.readyState === WebSocket.OPEN) {
-        client.send(message);
-      }
+        switch (data.type) {
+
+            case 'join-room':
+                console.log(rooms);
+                if (rooms[data.room]) {
+                    rooms[data.room].push(ws);
+                    ws.room = data.room;
+                    ws.playerNumber = rooms[data.room].length;
+                    ws.send(JSON.stringify({ type: 'joined-room', room: data.room, playerNumber: ws.playerNumber }));
+                    broadcastToRoom(data.room, { type: 'new-user', message: `Player ${ws.playerNumber} has joined the room.`, playerNumber: ws.playerNumber });
+                } else {
+                    console.log(rooms)
+                    ws.send(JSON.stringify({ type: 'room-error', message: 'Room does not exist!' }));
+                }
+                break;
+
+            case 'create-room':
+                const newRoom = data.room;
+                rooms[newRoom] = [ws];
+                ws.room = newRoom;
+                ws.playerNumber = 1;
+                // console.log(rooms[newRoom])
+                ws.send(JSON.stringify({ type: 'joined-room', room: newRoom, playerNumber: ws.playerNumber }));
+                break;
+
+            case 'color':
+                if (ws.room) {
+                    broadcastToRoom(ws.room, { type: 'color', color: data.color });
+                }
+                break;
+
+            case 'update-array':
+                if (ws.room) {
+                    broadcastToRoom(ws.room, { type: 'update-array', array: data.array });
+                }
+                break;
+
+            case 'game-over':
+                if (ws.room) {
+                    broadcastToRoom(ws.room, { type: 'game-over' });
+                }
+                break;
+
+            case 'new-round':
+                if (ws.room) {
+                    broadcastToRoom(ws.room, { type: 'new-round', sequence: data.sequence, score: data.score });
+                }
+                break;
+        }
     });
-  });
 
-  // Remove client from clients array on disconnect
-  ws.on('close', () => {
-    clients = clients.filter(client => client !== ws);
-    console.log('Client disconnected. Total clients:', clients.length);
-  });
+    ws.on('close', () => {
+        if (ws.room) {
+            rooms[ws.room] = rooms[ws.room].filter(client => client !== ws);
+            if (rooms[ws.room].length === 0) {
+                delete rooms[ws.room];
+            }
+        }
+        console.log('Client disconnected');
+    });
 });
 
-console.log('WebSocket server is running on ws://localhost:8080');
+function broadcastToRoom(room, data) {
+    rooms[room].forEach((client) => {
+        if (client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify(data));
+        }
+    });
+}
+
+app.use(express.static(path.join(__dirname)));
+
+const PORT = process.env.PORT || 8080;
+server.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+});

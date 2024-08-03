@@ -1,31 +1,23 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
-  <head>
-    <meta charset="utf-8" />
-    <title>Simon</title>
-    <link rel="stylesheet" href="styles.css" />
-    <link
-      href="https://fonts.googleapis.com/css?family=Press+Start+2P"
-      rel="stylesheet"
-    />
-  </head>
-
-  <body>
-    <h1 id="level-title">Press A Key to Start</h1>
-    <h3>POINTS 0</h3>
-    <div class="container">
-      <div lass="row">
-        <div type="button" id="green" class="btn green"></div>
-
-        <div type="button" id="red" class="btn red"></div>
-      </div>
-
-      <div class="row">
-        <div type="button" id="yellow" class="btn yellow"></div>
-        <div type="button" id="blue" class="btn blue"></div>
-      </div>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mario Themed Page</title>
+    <link rel="stylesheet" href="styles1.css">
+</head>
+<body>
+    <div class="container" id="main-container">
+        <h1>Welcome to Mario World</h1>
+        <button class="btn" id="join-room-btn">Join a Room</button>
+        <button class="btn" id="create-room-btn">Create a New Room</button>
     </div>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <script src="./index.js"></script>
-  </body>
+    <div class="container" id="join-container" style="display:none;">
+        <h1>Enter Room Code</h1>
+        <input type="text" id="room-code" placeholder="Enter Room Code">
+        <button class="btn" id="submit-room-code">Join Room</button>
+        <p id="error-message" style="color: red; display: none;">Room does not exist!</p>
+    </div>
+    <script src="scripts1.js"></script>
+</body>
 </html>
